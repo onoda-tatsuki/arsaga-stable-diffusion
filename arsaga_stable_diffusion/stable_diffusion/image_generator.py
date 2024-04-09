@@ -3,8 +3,9 @@ from __future__ import annotations
 from typing import Optional
 
 import requests
+from requests.exceptions import RequestException
 
-from arsaga_stable_diffusion.schemas.types import image_format
+from arsaga_stable_diffusion.schemas.types import image_aspect, image_format
 from arsaga_stable_diffusion.stable_diffusion.base import (
     BaseImageGenerator,
     ImageGeneratorFactory,
@@ -19,10 +20,10 @@ class V2ImageGenerator(BaseImageGenerator):
     def generate_image(
         self,
         prompt: str,
-        aspect_ratio: Optional[str] = "1:1",
+        aspect_ratio: image_aspect = "1:1",
+        image_format: image_format = "webp",
         art_style: Optional[str] = None,
         negative_prompt: Optional[str] = None,
-        image_format: image_format = "webp",
     ) -> bytes:
         if self.api_key is None:
             raise ValueError("Missing Stability AI API Key")
@@ -36,23 +37,26 @@ class V2ImageGenerator(BaseImageGenerator):
 
         if negative_prompt:
             self.negative_prompt += negative_prompt
+        try:
+            response = requests.post(
+                "https://api.stability.ai/v2beta/stable-image/generate/core",
+                headers={"authorization": self.api_key, "accept": "application/json"},
+                files={"none": ""},
+                data={
+                    "prompt": request_prompt,
+                    "negative_prompt": self.negative_prompt,
+                    "output_format": image_format,
+                    "aspect_ratio": aspect_ratio,
+                },
+            )
 
-        response = requests.post(
-            "https://api.stability.ai/v2beta/stable-image/generate/core",
-            headers={"authorization": self.api_key, "accept": "application/json"},
-            files={"none": ""},
-            data={
-                "prompt": request_prompt,
-                "negative_prompt": self.negative_prompt,
-                "output_format": image_format,
-                "aspect_ratio": aspect_ratio,
-            },
-        )
+            response.raise_for_status()
+            data = response.json()
 
-        data = response.json()
+            if response.status_code != 200 or data.get("finish_reason") != "SUCCESS":
+                raise Exception()
 
-        if response.status_code != 200 or data.get("finish_reason") != "SUCCESS":
-            # todo エラーの型定義
-            raise Exception(str(data))
+        except RequestException:
+            raise
 
         return data.get("image")

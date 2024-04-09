@@ -15,7 +15,12 @@ from langchain_openai import ChatOpenAI
 
 from arsaga_stable_diffusion.prompt.template import OpenAIPromptTemplate
 from arsaga_stable_diffusion.schemas.image import ImageResponse
-from arsaga_stable_diffusion.schemas.types import generator_type, gpt_type
+from arsaga_stable_diffusion.schemas.types import (
+    generator_type,
+    gpt_type,
+    image_aspect,
+    image_format,
+)
 from arsaga_stable_diffusion.stable_diffusion.base import ImageGeneratorFactory
 
 if os.getenv("LANGCHAIN_DEBUG_MODE") == "ALL":
@@ -25,7 +30,6 @@ elif os.getenv("LANGCHAIN_DEBUG_MODE") == "VERBOSE":
 
 
 class PromptGenerator:
-    # todo 引数に型定義をする
     def __init__(
         self,
         api_key: Optional[str] = None,
@@ -88,7 +92,6 @@ class PromptGenerator:
         with get_openai_callback() as callback:
             response = chain.invoke({"human_input": prompt})
 
-        # todo 返り値をどうするか検討する
         return response, callback
 
     def bind_image_generator(
@@ -102,8 +105,12 @@ class PromptGenerator:
     def make_image_by_prompt(
         self,
         prompt: str,
-        designer_template: Optional[str],
-        prompt_maker_template: Optional[str],
+        designer_template: Optional[str] = None,
+        prompt_maker_template: Optional[str] = None,
+        aspect_ratio: image_aspect = "1:1",
+        image_format: image_format = "webp",
+        art_style: Optional[str] = None,
+        negative_prompt: Optional[str] = None,
     ):
         if self.generator is None:
             # todo エラーの型定義を行う
@@ -113,7 +120,9 @@ class PromptGenerator:
             prompt, designer_template, prompt_maker_template
         )
 
-        image = self.generator.generate_image(response)
+        image = self.generator.generate_image(
+            response, aspect_ratio, image_format, art_style, negative_prompt
+        )
 
         return ImageResponse(
             b64_bytes=image,

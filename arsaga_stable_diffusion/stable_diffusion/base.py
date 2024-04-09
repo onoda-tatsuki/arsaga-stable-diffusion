@@ -11,7 +11,6 @@ T = TypeVar("T", bound="BaseImageGenerator")
 
 
 class BaseImageGenerator(metaclass=ABCMeta):
-    # todo pydanticで型定義した値を受け取るように修正する?
     def __init__(
         self,
         api_key: Optional[str] = None,
@@ -37,15 +36,14 @@ class BaseImageGenerator(metaclass=ABCMeta):
             or StableDiffusionPromptTemplate.NEGATIVE_PROMPT
         )
 
-    # todo 返す値の定義
     @abstractmethod
     def generate_image(
         self,
         prompt: str,
         aspect_ratio: Optional[str] = "1:1",
+        image_format: image_format = "webp",
         art_style: Optional[str] = None,
         negative_prompt: Optional[str] = None,
-        image_format: image_format = "webp",
         **kwargs,
     ) -> bytes:
         pass
