@@ -7,9 +7,15 @@ from typing import Optional
 import numpy as np
 import requests
 from PIL import Image
-from stable_diffusion.base import BaseImageGenerator
+# fmt: off
+from stable_diffusion.base import (
+    BaseImageGenerator,
+    ImageGeneratorFactory,
+    image_format
+) # fmt: on
 
 
+@ImageGeneratorFactory.register("v2")
 class V2ImageGenerator(BaseImageGenerator):
     def __init__(self):
         super().__init__()
@@ -20,8 +26,10 @@ class V2ImageGenerator(BaseImageGenerator):
         aspect_ratio: Optional[str] = "1:1",
         art_style: Optional[str] = None,
         negative_prompt: Optional[str] = None,
-        image_format: str = "webp",
+        image_format: image_format = "webp",
     ):
+        if self.api_key is None:
+            raise ValueError("Missing Stability AI API Key")
 
         if art_style:
             request_prompt = (

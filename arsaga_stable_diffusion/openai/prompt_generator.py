@@ -1,24 +1,29 @@
 from __future__ import annotations
 
 import os
-from typing import Optional
+from typing import Literal, Optional
 
 from langchain.callbacks.manager import get_openai_callback
 from langchain.globals import set_debug, set_verbose
 from langchain_community.callbacks.openai_info import OpenAICallbackHandler
 from langchain_core.output_parsers import StrOutputParser
-from langchain_core.prompts import (ChatPromptTemplate,
-                                    SystemMessagePromptTemplate)
+# fmt: off
+from langchain_core.prompts import (
+    ChatPromptTemplate,
+    SystemMessagePromptTemplate
+) # fmt: on
 from langchain_core.pydantic_v1 import SecretStr
 from langchain_core.runnables import RunnablePassthrough
 from langchain_openai import ChatOpenAI
 from prompt.template import OpenAIPromptTemplate
-from stable_diffusion.image_generator import V2ImageGenerator
+from stable_diffusion.base import ImageGeneratorFactory, generator_type
 
-if os.environ["LANGCHAIN_DEBUG_MODE"] == "ALL":
+if os.getenv("LANGCHAIN_DEBUG_MODE") == "ALL":
     set_debug(True)
-elif os.environ["LANGCHAIN_DEBUG_MODE"] == "VERBOSE":
+elif os.getenv("LANGCHAIN_DEBUG_MODE") == "VERBOSE":
     set_verbose(True)
+
+gpt_type = Literal["gpt-4", "gpt-3.5-turbo"]
 
 
 class PromptGenerator:
@@ -26,12 +31,12 @@ class PromptGenerator:
     def __init__(
         self,
         api_key: Optional[str] = None,
-        model: str = "gpt-3.5-turbo",
+        model: gpt_type = "gpt-3.5-turbo",
         temperature: float = 0,
         verbose: bool = False,
     ) -> None:
         if api_key is None:
-            api_key = os.environ.get("OPENAI_AI_API_KEY")
+            api_key = os.getenv("OPENAI_AI_API_KEY")
 
         if api_key is None:
             raise ValueError("Missing OpenAI API Key")
@@ -49,19 +54,23 @@ class PromptGenerator:
     def _make_sd_prompt(
         self,
         prompt: str,
-        sd_designer_prompt_template: str = OpenAIPromptTemplate.SD_DESIGN_TEMPLATE,
-        sd_maker_prompt_template: str = OpenAIPromptTemplate.SD_PROMPT_TEMPLATE,
+        designer_template: Optional[str] = None,
+        prompt_maker_template: Optional[str] = None,
     ) -> tuple[str, OpenAICallbackHandler]:
         sd_design_template = ChatPromptTemplate.from_messages(
             [
-                SystemMessagePromptTemplate.from_template(sd_designer_prompt_template),
+                SystemMessagePromptTemplate.from_template(
+                    designer_template or OpenAIPromptTemplate.SD_DESIGN_TEMPLATE
+                ),
                 ("human", "{human_input}"),
             ]
         )
 
         sd_prompt_template = ChatPromptTemplate.from_messages(
             [
-                SystemMessagePromptTemplate.from_template(sd_maker_prompt_template),
+                SystemMessagePromptTemplate.from_template(
+                    prompt_maker_template or OpenAIPromptTemplate.SD_PROMPT_TEMPLATE
+                ),
                 ("human", "{human_input}"),
             ]
         )
@@ -84,5 +93,26 @@ class PromptGenerator:
         # todo 返り値をどうするか検討する
         return response, callback
 
-    def bind_image_generator(self) -> None:
-        self.generator = V2ImageGenerator()
+    def bind_image_generator(
+        self,
+        generator_type: generator_type = "v2",
+        api_key: Optional[str] = None,
+        **kwargs,
+    ) -> None:
+        self.generator = ImageGeneratorFactory.create(generator_type, api_key, **kwargs)
+
+    def make_image_by_prompt(
+        self,
+        prompt: str,
+        designer_template: Optional[str],
+        prompt_maker_template: Optional[str],
+    ):
+        if self.generator is None:
+            # todo エラーの型定義を行う
+            raise Exception("Image Generator class not initialized")
+
+        response, token_info = self._make_sd_prompt(
+            prompt, designer_template, prompt_maker_template
+        )
+
+        self.generator.generate_image(response)
