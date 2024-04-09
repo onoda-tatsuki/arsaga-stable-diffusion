@@ -2,7 +2,7 @@ TARGET_DIR ?= arsaga_stable_diffusion
 
 lint: lint/.pyright lint/.flake8
 
-format: format/.black format/.isort
+format: format/.isort format/.black
 
 lint/.pyright:
 	poetry run pyright ${TARGET_DIR}

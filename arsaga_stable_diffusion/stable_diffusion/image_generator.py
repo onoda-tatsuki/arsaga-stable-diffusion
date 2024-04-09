@@ -3,8 +3,12 @@ from __future__ import annotations
 from typing import Optional
 
 import requests
-from schemas.types import image_format
-from stable_diffusion.base import BaseImageGenerator, ImageGeneratorFactory
+
+from arsaga_stable_diffusion.schemas.types import image_format
+from arsaga_stable_diffusion.stable_diffusion.base import (
+    BaseImageGenerator,
+    ImageGeneratorFactory,
+)
 
 
 @ImageGeneratorFactory.register("v2")

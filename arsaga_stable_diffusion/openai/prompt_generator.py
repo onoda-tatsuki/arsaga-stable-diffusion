@@ -7,16 +7,16 @@ from langchain.callbacks.manager import get_openai_callback
 from langchain.globals import set_debug, set_verbose
 from langchain_community.callbacks.openai_info import OpenAICallbackHandler
 from langchain_core.output_parsers import StrOutputParser
-# fmt: off
 from langchain_core.prompts import ChatPromptTemplate  # fmt: on
 from langchain_core.prompts import SystemMessagePromptTemplate
 from langchain_core.pydantic_v1 import SecretStr
 from langchain_core.runnables import RunnablePassthrough
 from langchain_openai import ChatOpenAI
-from prompt.template import OpenAIPromptTemplate
-from schemas.image import ImageResponse
-from schemas.types import generator_type, gpt_type
-from stable_diffusion.base import ImageGeneratorFactory
+
+from arsaga_stable_diffusion.prompt.template import OpenAIPromptTemplate
+from arsaga_stable_diffusion.schemas.image import ImageResponse
+from arsaga_stable_diffusion.schemas.types import generator_type, gpt_type
+from arsaga_stable_diffusion.stable_diffusion.base import ImageGeneratorFactory
 
 if os.getenv("LANGCHAIN_DEBUG_MODE") == "ALL":
     set_debug(True)

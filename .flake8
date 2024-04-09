@@ -1,4 +1,6 @@
 [flake8]
 extend-ignore = E203
 max-line-length = 119
-per-file-ignores= ./arsaga_stable_diffusion/prompt/template.py:E501
+per-file-ignores=
+    ./arsaga_stable_diffusion/prompt/template.py:E501
+    ./arsaga_stable_diffusion/*/__init__.py:F401

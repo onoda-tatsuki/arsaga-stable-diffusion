@@ -1,7 +1,8 @@
 import base64
 
 from pydantic import BaseModel, ConfigDict, Field
-from schemas.types import encoded_bytes
+
+from arsaga_stable_diffusion.schemas.types import encoded_bytes
 
 
 class ImageResponse(BaseModel):
