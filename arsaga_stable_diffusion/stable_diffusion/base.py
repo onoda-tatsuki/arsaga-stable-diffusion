@@ -4,8 +4,8 @@ import os
 from abc import ABCMeta, abstractmethod
 from typing import Callable, Optional, Type, TypeVar
 
-from prompt.template import StableDiffusionPromptTemplate
-from schemas.types import generator_type, image_format
+from arsaga_stable_diffusion.prompt.template import StableDiffusionPromptTemplate
+from arsaga_stable_diffusion.schemas.types import generator_type, image_format
 
 T = TypeVar("T", bound="BaseImageGenerator")
 
