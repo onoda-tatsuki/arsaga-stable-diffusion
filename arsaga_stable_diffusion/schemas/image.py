@@ -12,7 +12,6 @@ class ImageResponse(BaseModel):
     model_config = ConfigDict(
         extra="forbid",  # 追加の属性を拒否する
         frozen=True,  # 値の変更を拒否する
-        from_attributes=True,  # pythonのオブジェクト属性を使用してクラスを作成する
     )
 
     def decode_b64_bytes(self) -> bytes:

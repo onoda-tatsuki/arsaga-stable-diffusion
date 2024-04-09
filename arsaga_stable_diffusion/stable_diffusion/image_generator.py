@@ -1,12 +1,8 @@
 from __future__ import annotations
 
-import base64
-import io
 from typing import Optional
 
-import numpy as np
 import requests
-from PIL import Image
 from schemas.types import image_format
 from stable_diffusion.base import BaseImageGenerator, ImageGeneratorFactory
 
@@ -23,7 +19,7 @@ class V2ImageGenerator(BaseImageGenerator):
         art_style: Optional[str] = None,
         negative_prompt: Optional[str] = None,
         image_format: image_format = "webp",
-    ):
+    ) -> bytes:
         if self.api_key is None:
             raise ValueError("Missing Stability AI API Key")
 
@@ -51,15 +47,8 @@ class V2ImageGenerator(BaseImageGenerator):
 
         data = response.json()
 
-        if response.status_code == 200 and data.get("finish_reason") == "SUCCESS":
-            decoded_image, image_np = self._decoded_image(data.get("image"))
+        if response.status_code != 200 or data.get("finish_reason") != "SUCCESS":
+            # todo エラーの型定義
+            raise Exception(str(data))
 
-            decoded_image = base64.b64decode(data.get("image"))
-            io_image = Image.open(io.BytesIO(decoded_image))
-            image_np = np.array(io_image)
-
-        else:
-            # todo 返すエラーの型定義の作成
-            raise Exception(str(response.json()))
-
-        return image_np
+        return data.get("image")

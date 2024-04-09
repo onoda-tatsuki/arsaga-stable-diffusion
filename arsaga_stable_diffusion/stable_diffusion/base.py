@@ -1,13 +1,9 @@
 from __future__ import annotations
 
-import base64
-import io
 import os
 from abc import ABCMeta, abstractmethod
 from typing import Callable, Optional, Type, TypeVar
 
-import numpy as np
-from PIL import Image
 from prompt.template import StableDiffusionPromptTemplate
 from schemas.types import generator_type, image_format
 
@@ -41,13 +37,6 @@ class BaseImageGenerator(metaclass=ABCMeta):
             or StableDiffusionPromptTemplate.NEGATIVE_PROMPT
         )
 
-    def _decoded_image(self, encoded_data: bytes | str):
-        decoded_image = base64.b64decode(encoded_data)
-        io_image = Image.open(io.BytesIO(decoded_image))
-        image_np = np.array(io_image)
-
-        return decoded_image, image_np
-
     # todo 返す値の定義
     @abstractmethod
     def generate_image(
@@ -58,7 +47,7 @@ class BaseImageGenerator(metaclass=ABCMeta):
         negative_prompt: Optional[str] = None,
         image_format: image_format = "webp",
         **kwargs,
-    ):
+    ) -> bytes:
         pass
 
 

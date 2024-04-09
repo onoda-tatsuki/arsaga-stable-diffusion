@@ -113,4 +113,10 @@ class PromptGenerator:
             prompt, designer_template, prompt_maker_template
         )
 
-        self.generator.generate_image(response)
+        image = self.generator.generate_image(response)
+
+        return ImageResponse(
+            b64_bytes=image,
+            reversed_prompt=response,
+            total_tokens=token_info.total_tokens,
+        )
