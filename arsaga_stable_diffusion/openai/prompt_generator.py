@@ -1,29 +1,27 @@
 from __future__ import annotations
 
 import os
-from typing import Literal, Optional
+from typing import Optional
 
 from langchain.callbacks.manager import get_openai_callback
 from langchain.globals import set_debug, set_verbose
 from langchain_community.callbacks.openai_info import OpenAICallbackHandler
 from langchain_core.output_parsers import StrOutputParser
 # fmt: off
-from langchain_core.prompts import (
-    ChatPromptTemplate,
-    SystemMessagePromptTemplate
-) # fmt: on
+from langchain_core.prompts import ChatPromptTemplate  # fmt: on
+from langchain_core.prompts import SystemMessagePromptTemplate
 from langchain_core.pydantic_v1 import SecretStr
 from langchain_core.runnables import RunnablePassthrough
 from langchain_openai import ChatOpenAI
 from prompt.template import OpenAIPromptTemplate
-from stable_diffusion.base import ImageGeneratorFactory, generator_type
+from schemas.image import ImageResponse
+from schemas.types import generator_type, gpt_type
+from stable_diffusion.base import ImageGeneratorFactory
 
 if os.getenv("LANGCHAIN_DEBUG_MODE") == "ALL":
     set_debug(True)
 elif os.getenv("LANGCHAIN_DEBUG_MODE") == "VERBOSE":
     set_verbose(True)
-
-gpt_type = Literal["gpt-4", "gpt-3.5-turbo"]
 
 
 class PromptGenerator:

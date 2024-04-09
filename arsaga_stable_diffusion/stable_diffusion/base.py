@@ -4,16 +4,12 @@ import base64
 import io
 import os
 from abc import ABCMeta, abstractmethod
-from typing import Callable, Literal, Optional, Type, TypeVar
+from typing import Callable, Optional, Type, TypeVar
 
 import numpy as np
 from PIL import Image
 from prompt.template import StableDiffusionPromptTemplate
-
-# クラスとして定義しても良いが、型ヒントが効かないのでリテラルで宣言している
-generator_type = Literal["v2"]
-
-image_format = Literal["jpeg", "png", "webp"]
+from schemas.types import generator_type, image_format
 
 T = TypeVar("T", bound="BaseImageGenerator")
 

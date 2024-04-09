@@ -7,12 +7,8 @@ from typing import Optional
 import numpy as np
 import requests
 from PIL import Image
-# fmt: off
-from stable_diffusion.base import (
-    BaseImageGenerator,
-    ImageGeneratorFactory,
-    image_format
-) # fmt: on
+from schemas.types import image_format
+from stable_diffusion.base import BaseImageGenerator, ImageGeneratorFactory
 
 
 @ImageGeneratorFactory.register("v2")
@@ -55,7 +51,6 @@ class V2ImageGenerator(BaseImageGenerator):
 
         data = response.json()
 
-        # todo dall-e3のレスポンスに合わせた返り値にする
         if response.status_code == 200 and data.get("finish_reason") == "SUCCESS":
             decoded_image, image_np = self._decoded_image(data.get("image"))
 
