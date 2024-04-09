@@ -1,5 +1,4 @@
 from .openai import PromptGenerator
-from .prompt import OpenAIPromptTemplate, StableDiffusionPromptTemplate
 from .schemas import Image, encoded_bytes, generator_type, gpt_type, image_format
 from .stable_diffusion import (
     BaseImageGenerator,
@@ -9,8 +8,6 @@ from .stable_diffusion import (
 
 __all__ = [
     "PromptGenerator",
-    "OpenAIPromptTemplate",
-    "StableDiffusionPromptTemplate",
     "Image",
     "generator_type",
     "gpt_type",
