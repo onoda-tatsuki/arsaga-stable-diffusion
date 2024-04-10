@@ -4,6 +4,9 @@ lint: lint/.pyright lint/.flake8
 
 format: format/.isort format/.black
 
+test:
+	poetry run pytest tests/
+
 lint/.pyright:
 	poetry run pyright ${TARGET_DIR}
 

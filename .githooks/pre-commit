@@ -3,6 +3,7 @@
 # Makefile の format コマンドを実行
 make format
 make lint
+make test
 
 # 変更されたファイルをステージングに追加
 git add $(git diff --cached --name-only --diff-filter=d | grep '\.py$')

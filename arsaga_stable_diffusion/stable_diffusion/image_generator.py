@@ -16,8 +16,14 @@ from arsaga_stable_diffusion.stable_diffusion.base import (
 
 @ImageGeneratorFactory.register("v2")
 class V2ImageGenerator(BaseImageGenerator):
-    def __init__(self):
-        super().__init__()
+    def __init__(
+        self,
+        api_key: Optional[str] = None,
+        quality_prompt: Optional[str] = None,
+        negative_prompt: Optional[str] = None,
+        **kwargs,
+    ):
+        super().__init__(api_key, quality_prompt, negative_prompt, **kwargs)
 
     def generate_image(
         self,

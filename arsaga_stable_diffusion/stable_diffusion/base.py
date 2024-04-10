@@ -20,7 +20,7 @@ class BaseImageGenerator(metaclass=ABCMeta):
     ) -> None:
 
         self.api_key = (
-            api_key or kwargs.get("api_key") or os.getenv("STABILITY_AI_API_KEY")
+            api_key or kwargs.get("api_key") or os.getenv("STABILITY_API_KEY")
         )
         if self.api_key is None:
             raise ValueError("Missing Stability AI API Key")
@@ -67,11 +67,12 @@ class ImageGeneratorFactory:
         cls,
         generator_type: generator_type,
         api_key: Optional[str] = None,
-        *args,
+        quality_prompt: Optional[str] = None,
+        negative_prompt: Optional[str] = None,
         **kwargs,
     ) -> BaseImageGenerator:
         generator_cls = cls._generator_types.get(generator_type)
         if generator_cls is None:
             raise ValueError(f"Generator type {generator_type} is not registered")
 
-        return generator_cls(api_key, *args, **kwargs)
+        return generator_cls(api_key, quality_prompt, negative_prompt, **kwargs)

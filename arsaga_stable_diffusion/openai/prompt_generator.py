@@ -23,7 +23,10 @@ from arsaga_stable_diffusion.schemas.types import (
     image_aspect,
     image_format,
 )
-from arsaga_stable_diffusion.stable_diffusion.base import ImageGeneratorFactory
+from arsaga_stable_diffusion.stable_diffusion.base import (
+    BaseImageGenerator,
+    ImageGeneratorFactory,
+)
 
 if os.getenv("LANGCHAIN_DEBUG_MODE") == "ALL":
     set_debug(True)
@@ -40,7 +43,7 @@ class PromptGenerator:
         verbose: bool = False,
     ) -> None:
         if api_key is None:
-            api_key = os.getenv("OPENAI_AI_API_KEY")
+            api_key = os.getenv("OPENAI_API_KEY")
 
         if api_key is None:
             raise ValueError("Missing OpenAI API Key")
@@ -102,9 +105,13 @@ class PromptGenerator:
         self,
         generator_type: generator_type = "v2",
         api_key: Optional[str] = None,
+        quality_prompt: Optional[str] = None,
+        negative_prompt: Optional[str] = None,
         **kwargs,
     ) -> None:
-        self.generator = ImageGeneratorFactory.create(generator_type, api_key, **kwargs)
+        self.generator = ImageGeneratorFactory.create(
+            generator_type, api_key, quality_prompt, negative_prompt, **kwargs
+        )
 
     def make_image_by_prompt(
         self,
@@ -115,10 +122,9 @@ class PromptGenerator:
         image_format: image_format = "webp",
         art_style: Optional[str] = None,
         negative_prompt: Optional[str] = None,
-    ):
-        if self.generator is None:
-            # todo エラーの型定義を行う
-            raise Exception("Image Generator class not initialized")
+    ) -> ImageResponse:
+        if self.generator is None or not isinstance(self.generator, BaseImageGenerator):
+            raise RuntimeError("Image Generator is not initialized")
 
         response, token_info = self._make_sd_prompt(
             prompt, designer_template, prompt_maker_template
