@@ -56,7 +56,31 @@ LLMを使用したクラスがプロンプトを受け取り、文字列(str | C
 それぞれのクラスは別々に使用することも可能です。
 
 ```python
+from arsaga_stable_diffusion.openai import PromptGenerator
+from arsaga_stable_diffusion.schemas.types import gpt_type, image_aspect # ←引数の型定義
+
 # LLMのクラスインスタンスを作成
+generator = PromptGenerator(model=models, temperature=temperature, verbose=True)
 
+# 画像生成用のクラスインスタンスをメンバ変数へ登録
+generator.bind_image_generator()
 
+# メソッドを実行して画像を生成する
+image = generator.make_image_by_prompt(prompt=prompt, aspect_ratio=aspect_ratio)
+
+# デコードして 画像表示 or 保存等
+decoded_image = image.decode_b64_bytes()
+
+# 画像ファイルを表示するサンプル このライブラリではそこまでの機能は実装しません
+io_image = Image.open(decoded_image)
+image_np = np.array(io_image)
 ```
+
+##プロジェクト運用ルール(仮)
+- tool.poetryのバージョンについて
+    初期ver => 1.0.0 (※ A.B.C とする) ブランチ名: 1.x.x
+    破壊的な変更: リポジトリをフォーク(ブランチ変更) A変更, B,Cリセット => 2.0.0 ブランチ名: 2.x.x
+    機能追加: Bの変更, Cリセット => 1.1.0
+    軽微な修正等: C変更 => 1.0.1
+
+    issueを立てて、作業ブランチ名はバージョン番号を入れるといいかもしれません。

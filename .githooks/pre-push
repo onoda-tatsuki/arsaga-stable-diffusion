@@ -14,9 +14,9 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-# テスト実行
-make test
-if [ $? -ne 0 ]; then
-  echo "Tests failed, pre-push hook aborting push."
-  exit 1
-fi
+# テスト実行 APIのクレジット使うので注意
+# make test
+# if [ $? -ne 0 ]; then
+#   echo "Tests failed, pre-push hook aborting push."
+#   exit 1
+# fi
