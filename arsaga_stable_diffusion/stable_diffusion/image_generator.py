@@ -5,6 +5,8 @@ from typing import Optional
 import requests
 from requests.exceptions import RequestException
 
+from arsaga_stable_diffusion.errors.error_message import ErrorMessage
+from arsaga_stable_diffusion.errors.exceptions import APIException
 from arsaga_stable_diffusion.schemas.types import image_aspect, image_format
 from arsaga_stable_diffusion.stable_diffusion.base import (
     BaseImageGenerator,
@@ -35,8 +37,6 @@ class V2ImageGenerator(BaseImageGenerator):
         else:
             request_prompt = f"({self.quality_prompt}:1.3), " + prompt
 
-        if negative_prompt:
-            self.negative_prompt += negative_prompt
         try:
             response = requests.post(
                 "https://api.stability.ai/v2beta/stable-image/generate/core",
@@ -44,7 +44,11 @@ class V2ImageGenerator(BaseImageGenerator):
                 files={"none": ""},
                 data={
                     "prompt": request_prompt,
-                    "negative_prompt": self.negative_prompt,
+                    "negative_prompt": (
+                        self.negative_prompt + negative_prompt
+                        if negative_prompt
+                        else self.negative_prompt
+                    ),
                     "output_format": image_format,
                     "aspect_ratio": aspect_ratio,
                 },
@@ -54,9 +58,24 @@ class V2ImageGenerator(BaseImageGenerator):
             data = response.json()
 
             if response.status_code != 200 or data.get("finish_reason") != "SUCCESS":
-                raise Exception()
+                raise APIException(
+                    error=ErrorMessage.STABLE_DIFFUSION_GENERATE_FAILED,
+                    status_code=response.status_code,
+                    content=data.get("errors")[0],
+                )
 
-        except RequestException:
-            raise
+        except RequestException as err:
+            status_code = None
+            content = None
+
+            if response := err.response:
+                status_code = response.status_code
+                content = response.content
+
+            raise APIException(
+                error=ErrorMessage.STABLE_DIFFUSION_GENERATE_FAILED,
+                status_code=status_code or 500,
+                content=content,
+            )
 
         return data.get("image")

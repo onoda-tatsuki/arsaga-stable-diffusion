@@ -13,6 +13,8 @@ from langchain_core.pydantic_v1 import SecretStr
 from langchain_core.runnables import RunnablePassthrough
 from langchain_openai import ChatOpenAI
 
+from arsaga_stable_diffusion.errors.error_message import ErrorMessage
+from arsaga_stable_diffusion.errors.exceptions import APIException
 from arsaga_stable_diffusion.prompt.template import OpenAIPromptTemplate
 from arsaga_stable_diffusion.schemas.image import ImageResponse
 from arsaga_stable_diffusion.schemas.types import (
@@ -88,9 +90,11 @@ class PromptGenerator:
             | self.lim
             | output_parser
         )
-
         with get_openai_callback() as callback:
-            response = chain.invoke({"human_input": prompt})
+            try:
+                response = chain.invoke({"human_input": prompt})
+            except Exception:
+                raise APIException(error=ErrorMessage.CHATGPT_NOT_RESPONSE)
 
         return response, callback
 
