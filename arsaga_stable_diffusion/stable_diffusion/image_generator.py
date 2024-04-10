@@ -30,18 +30,12 @@ class V2ImageGenerator(BaseImageGenerator):
         prompt: str,
         aspect_ratio: image_aspect = "1:1",
         image_format: image_format = "webp",
-        art_style: Optional[str] = None,
         negative_prompt: Optional[str] = None,
     ) -> bytes:
         if self.api_key is None:
             raise ValueError("Missing Stability AI API Key")
 
-        if art_style:
-            request_prompt = (
-                f"({self.quality_prompt}:1.3), " + f"({art_style}:1.4), " + prompt
-            )
-        else:
-            request_prompt = f"({self.quality_prompt}:1.3), " + prompt
+        request_prompt = f"({self.quality_prompt}:1.3), " + prompt
 
         try:
             response = requests.post(

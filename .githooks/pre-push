@@ -1,0 +1,22 @@
+#!/bin/sh
+
+# フォーマットチェック
+make format
+if [ $? -ne 0 ]; then
+  echo "Formatting failed, pre-push hook aborting push."
+  exit 1
+fi
+
+# リントチェック
+make lint
+if [ $? -ne 0 ]; then
+  echo "Linting failed, pre-push hook aborting push."
+  exit 1
+fi
+
+# テスト実行
+make test
+if [ $? -ne 0 ]; then
+  echo "Tests failed, pre-push hook aborting push."
+  exit 1
+fi
