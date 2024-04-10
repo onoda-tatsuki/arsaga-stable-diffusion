@@ -131,7 +131,10 @@ class PromptGenerator:
         )
 
         image = self.generator.generate_image(
-            response, aspect_ratio, image_format, art_style, negative_prompt
+            prompt=response,
+            aspect_ratio=aspect_ratio,
+            image_format=image_format,
+            negative_prompt=negative_prompt,
         )
 
         return ImageResponse(
